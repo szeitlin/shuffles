@@ -1,6 +1,7 @@
 __author__ = 'szeitlin'
 
 from collections import deque
+from itertools import cycle
 
 
 def make_deck(n):
@@ -38,13 +39,21 @@ def shuffle(cards, c):
 
     newstack = deque()
 
+    #the majority of time is spent in these 3 lines
     for i in range(stopping_criteria):
         newstack.append(top.pop())
         newstack.append(bottom.pop())
 
-    if len(top) > 0:
+    if (len(top)==0) and (len(bottom)==0):
+        return newstack
+
+    elif len(top) > 0:
+        #top.extend(newstack)
+        #return top
         newstack.extendleft(top)
-    if len(bottom) > 0:
+    elif len(bottom) > 0:
+        #bottom.extend(newstack)
+        #return bottom
         newstack.extendleft(bottom)
 
     #print(newstack)
@@ -53,6 +62,7 @@ def shuffle(cards, c):
 def zip_shuffle(cards, c):
     """
     Alternative implementation, see if this is faster (esp. on bigger lists).
+    Directly creates the interleaved bottom part and add the top, rather than pop and append.
 
     :param cards: list of int
     :param c: where to cut the deck (int)
@@ -61,11 +71,28 @@ def zip_shuffle(cards, c):
     top = cards[0:c]
     bottom = cards[c:]
 
-    smaller = min(len(top), len(bottom))
+    top_length = len(top)
+    bottom_length = len(bottom)
 
-    oddeven = lambda x: x % 2
+    bigger = max(top_length, bottom_length)
 
-    #idea to create and/or combine the top and bottom directly, rather than pop & append?
+    leftover = abs(top_length - bottom_length)
+
+    remaining = bigger - leftover
+
+    #oddeven = lambda x: x % 2
+
+    #newtop = cards[c+1:c+(remaining)]
+
+    #ok, tricky part is dealing with the leftover cards - different if they're in the top or bottom
+
+    iters = [reversed(top), reversed(bottom)]
+    newbottom = list(next(it) for it in cycle(iters))
+
+    newstack = newtop + [cards[c]]+ newbottom
+
+    return newstack
+
 
 
 def shuffle_until(n, c, times=0):
@@ -73,7 +100,7 @@ def shuffle_until(n, c, times=0):
     shuffle a specific number of times, and count as you go.
     helper function for development & debugging.
 
-    :param cards: (list of int)
+    :param n, c: to pass to make_deck and shuffle
     :param times: specify how many times to shuffle (int)
     :return: shuffled deck (list of int), and number of times (int)
 
@@ -82,15 +109,18 @@ def shuffle_until(n, c, times=0):
     >>> shuffle_until(5, 3, 1)
     ([1, 3, 5, 2, 4], 1)
     """
+    cards = make_deck(n)
+
     shuffle_count = 0
 
     if times != 0:
         for i in range(times):
-            newstack = shuffle(n,c)
+            newdeck = zip_shuffle(cards,c)
             shuffle_count += 1
-            return list(newstack), shuffle_count #should be equal to times
-    else:
-        return None
+            cards = list(newdeck)
+            print(cards)
+
+    return cards, shuffle_count #should be equal to times
 
 def shuffle_recursive(cards, c, shuffle_count):
     """
@@ -118,15 +148,26 @@ def shuffle_recursive(cards, c, shuffle_count):
     else:
         return shuffle_recursive(list(newstack), c, shuffle_count)
 
-def shuffle_iterative(cards, c, shuffle_count):
+def shuffle_iterative(cards, c, shuffle_count=0):
+    """
+    91% of time spent in shuffle method
+    2% of time spent on lists_identical method
 
-    original_order = [x for x in range(1, len(cards)+1)]
+    :param cards: deque of list of int
+    :param c: int
+    :param shuffle_count: int
+    :return: shuffle_count
+    """
 
-    for i in range(100000):
-        newstack = shuffle(cards, c)
+    original_order = deque([x for x in range(1, len(cards)+1)])
+    print(original_order)
+
+    for i in range(5):
+        newstack = zip_shuffle(cards, c)
         shuffle_count +=1
+        print(newstack)
 
-        if lists_identical(list(newstack), original_order): #stopping criteria
+        if lists_identical(newstack, original_order): #stopping criteria
             break
         else:
             cards = list(newstack)
@@ -154,5 +195,5 @@ def lists_identical(lista, listb):
 
 if __name__=='__main__':
     bigdeck = make_deck(1002)
-    result = shuffle_iterative(bigdeck, 101, 0)
+    result = shuffle_iterative(bigdeck, 101)
     print(result)
