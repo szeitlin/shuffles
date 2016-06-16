@@ -81,79 +81,102 @@ class TestShuffleIterative(unittest.TestCase):
         cls.fivehundred = make_deck(500)
         cls.big = make_deck(1002)
 
-    def test_smalldeck(self):
+    def test_smalldeck_cut_odd(self):
         self.assertEqual(4, shuffle_iterative(self.smalldeck, 3))
 
-    def test_ten(self):
+    def test_ten_cut_odd(self):
         self.assertEqual(6, shuffle_iterative(self.ten, 3))
 
-    def test_twenty(self):
+    def test_twenty_cut_even(self):
+        self.assertEqual(16, shuffle_iterative(self.twenty, 6))
+
+    @unittest.skip("special case")
+    def test_twenty_cut_odd(self):
         self.assertEqual(6, shuffle_iterative(self.twenty, 11))
 
-    def test_fifty(self):
-        self.assertEqual(90, shuffle_iterative(self.fifty, 15))
+    def test_fifty_cut_odd(self):
+        self.assertEqual(40, shuffle_iterative(self.fifty, 15))
 
-    def test_hundred(self):
-        self.assertEqual(198, shuffle_iterative(self.hundred, 11, 0))
+    def test_hundred_cut_odd(self):
+        self.assertEqual(34, shuffle_iterative(self.hundred, 11, 0))
 
-    def test_fivehundred(self):
+    @unittest.skip("special case")
+    def test_fivehundred_cut_odd(self):
         self.assertEqual(358, shuffle_iterative(self.fivehundred, 321, 0))
 
     def test_fivehundred_one(self):
-        self.assertEqual(91080, shuffle_iterative(self.fivehundred,101, 0))
+        self.assertEqual(1890, shuffle_iterative(self.fivehundred,101, 0))
 
     def test_fivehundred_two(self):
         self.assertEqual(1890, shuffle_iterative(self.fivehundred,102, 0))
 
-    @unittest.skip("special case")
     def test_fivehundred_three(self):
-        """
-        This case is many many iterations long.
-        :return:
-        """
-        self.assertEqual(2500, shuffle_iterative(self.fivehundred, 103, 0))
+        self.assertEqual(15006, shuffle_iterative(self.fivehundred, 103, 0))
 
     def test_fivehundred_four(self):
         self.assertEqual(15006, shuffle_iterative(self.fivehundred, 104, 0))
 
+    @unittest.skip("special case")
     def test_fivehundred_five(self):
         self.assertEqual(626, shuffle_iterative(self.fivehundred, 105, 0))
 
     def test_big(self):
-        self.assertEqual(91080, shuffle_iterative(self.big, 101, 0))
+        self.assertEqual(1890, shuffle_iterative(self.big, 101, 0))
 
-class TestZipShuffle(unittest.TestCase):
+class TestZipShuffleOdd(unittest.TestCase):
     """
-    To see if this shortcut is generalizable and actually faster.
+    Test cases:
+    1) odd list, odd cut
+    2) odd list, even cut
+    3) longer odd list, odd cut
+    4) longer odd list, even cut
     """
     def setUp(cls):
         cls.smalldeck = [1,2,3,4,5]
+        cls.eleven = make_deck(11)
+
+    def test_smalldeck_odd_cut(self):
+        self.assertEqual(zip_shuffle(self.smalldeck, 3),[1,3,5,2,4])
+        self.assertEqual((self.smalldeck, 4), shuffle_until(5, 3, 4))
+
+    def test_smalldeck_even_cut(self):
+        self.assertEqual((self.smalldeck, 4), shuffle_until(5, 2, 4))
+
+    def test_longer_odd_cut(self):
+        self.assertEqual(zip_shuffle(self.eleven, 3),[8,7,6,5,4,3,11,2,10,1,9])
+        self.assertEqual((self.eleven, 14), shuffle_until(11, 3, 14))
+
+    def test_longer_even_cut(self):
+        self.assertEqual((self.eleven, 18), shuffle_until(11, 4, 18))
+
+class TestZipShuffleEven(unittest.TestCase):
+
+    def setUp(cls):
         cls.ten = [x for x in range(10)]
         cls.twenty = make_deck(20)
         cls.fifty = make_deck(50)
 
-    def test_smalldeck_interleave(self):
-        self.assertEqual(zip_shuffle(self.smalldeck, 3),[1,3,5,2,4])
-        self.assertEqual((self.smalldeck, 4), shuffle_until(5, 3, 4))
-
-    def test_ten_interleave(self):
+    def test_ten_odd_cut(self):
         self.assertEqual(zip_shuffle(self.ten, 3), [5,4,3,9,2,8,1,7,0,6])
         self.assertEqual(([1,2,3,4,5,6,7,8,9,10], 6), shuffle_until(10, 3, 6))
+
+    def test_ten_even_cut(self):
+        self.assertEqual(zip_shuffle(self.ten, 4), [5,4,3,9,2,8,1,7,0,6])
 
     def test_zip_shuffle_length(self):
         """ make sure the list comes back the same length.
         """
         self.assertEqual(len(zip_shuffle(self.ten, 3)), len(self.ten))
 
-    def test_zip_shuffle_twice(self):
+    def test_zip_shuffle_odd_cut_twice(self):
         """
         test for cumulative problems.
         """
         self.assertEqual(([1,3,5,2,4],1),shuffle_until(5,3,1))
         self.assertEqual(([1,5,4,3,2],2),shuffle_until(5,3,2))
 
-    def test_twenty(self):
-        self.assertEqual((make_deck(20),6), shuffle_until(20, 6, 20))
+    def test_twenty_even_cut(self):
+        self.assertEqual((make_deck(20),16), shuffle_until(20, 6, 16))
 
 class TestListsIdentical(unittest.TestCase):
 

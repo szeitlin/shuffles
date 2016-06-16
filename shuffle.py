@@ -81,26 +81,39 @@ def zip_shuffle(cards, c):
     #remaining = bigger - leftover
 
     oddeven = lambda x: True if x % 2 == 0 else False
-    isEven = oddeven(len(cards))
+    deck_isEven = oddeven(len(cards))
+    cut_isEven = oddeven(c)
 
     #ok, tricky part is dealing with the leftover cards - different if they're in the top or bottom
     #different if list length is odd or even (and cut might matter too?)
 
-    if isEven is True:
+    if deck_isEven is True:
         #try this if list length is even
-        iters = [reversed(bottom), reversed(top)]
-        newbottom = list(next(it) for it in cycle(iters))
-        mod_c = len(cards) % 4
-        newtop = list(reversed(cards[leftover:leftover+mod_c])) + [cards[c]]
 
-    elif isEven is False:
+        if cut_isEven:
+            iters = [reversed(top), reversed(bottom)]
+            newbottom = list(next(it) for it in cycle(iters))
+            newtop = list(reversed(cards[c:c+leftover]))
+
+        if cut_isEven is False:
+            iters = [reversed(bottom), reversed(top)]
+            newbottom = list(next(it) for it in cycle(iters))
+            newtop = list(reversed(cards[c+1:c+leftover-1])) + [cards[c]]
+
+    elif deck_isEven is False:
         #for if list length is odd
         #use zip b/c truncation is actually what we want, so leftovers can go on top
         newbottom = list(sum(zip(reversed(top), reversed(bottom)), ()))
         print(newbottom)
 
-        newtop = cards[0:leftover]
-        print(newtop)
+        if cut_isEven:
+            newtop = cards[c:c+leftover]
+        elif cut_isEven is False:
+            if top_length > bottom_length:
+                newtop = list(reversed(top[0:leftover]))
+            elif bottom_length > top_length:
+                newtop = list(reversed(cards[c:c+leftover]))
+        #print(newtop)
 
     newstack = newtop + newbottom
 
