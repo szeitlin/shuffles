@@ -81,6 +81,7 @@ def zip_shuffle(cards, c):
     oddeven = lambda x: True if x % 2 == 0 else False
     deck_isEven = oddeven(len(cards))
     cut_isEven = oddeven(c)
+    newtop, newbottom = [],[]
 
     #ok, tricky part is dealing with the leftover cards - different if they're in the top or bottom
     #different if list length is odd or even and if cut is odd or even
@@ -89,10 +90,11 @@ def zip_shuffle(cards, c):
         #try this if list length is even
 
         if cut_isEven:
-            iters = [reversed(top), reversed(bottom)]
-            newbottom = list(next(it) for it in cycle(iters))
+            newbottom = list(sum(zip(reversed(top), reversed(bottom)), ()))
+            # iters = [reversed(top), reversed(bottom)]
+            # newbottom = list(next(it) for it in cycle(iters))
             if top_length >= bottom_length:
-                newtop = list(reversed(top[0:leftover]))
+                newtop = list(top[0:leftover])
             elif bottom_length > top_length:
                 newtop = list(reversed(cards[c:c+leftover]))
 
@@ -111,7 +113,10 @@ def zip_shuffle(cards, c):
         #print(newbottom)
 
         if cut_isEven:
-            newtop = cards[c:c+leftover]
+            if top_length > bottom_length:
+                newtop = list(top[0:leftover])
+            elif bottom_length > top_length:
+                newtop = cards[c:c+leftover]
         elif cut_isEven is False:
             if top_length > bottom_length:
                 newtop = list(reversed(top[0:leftover]))
@@ -178,7 +183,7 @@ def shuffle_recursive(cards, c, shuffle_count):
     else:
         return shuffle_recursive(list(newstack), c, shuffle_count)
 
-def shuffle_iterative(cards, c, shuffle_count=0):
+def shuffle_iterative(cards, c, shuffle_count=0, debug=False):
     """
     91% of time spent in original shuffle method
     2% of time spent on lists_identical method
@@ -195,7 +200,8 @@ def shuffle_iterative(cards, c, shuffle_count=0):
     for i in range(100000):
         newstack = zip_shuffle(cards, c)
         shuffle_count +=1
-        print(newstack)
+        if debug==True:
+            print(newstack)
 
         if lists_identical(newstack, original_order): #stopping criteria
             break

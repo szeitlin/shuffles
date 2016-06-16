@@ -75,6 +75,8 @@ class TestShuffleIterative(unittest.TestCase):
     def setUp(cls):
         cls.four = [1,2,3,4]
         cls.smalldeck = [1,2,3,4,5]
+        cls.seven = make_deck(7)
+        cls.nine = make_deck(9)
         cls.ten = make_deck(10)
         cls.twenty = make_deck(20)
         cls.fifty = make_deck(50)
@@ -91,8 +93,18 @@ class TestShuffleIterative(unittest.TestCase):
     def test_smalldeck_cut_odd(self):
         self.assertEqual(4, shuffle_iterative(self.smalldeck, 3))
 
+    def test_seven_cut_four(self):
+        self.assertEqual(6, shuffle_iterative(self.seven, 4))
+
+    def test_nine_cut_four(self):
+        self.assertEqual((self.nine, 15), shuffle_until(9, 4, 15))
+
     def test_ten_cut_odd(self):
         self.assertEqual(6, shuffle_iterative(self.ten, 3))
+
+    def test_ten_cut_six(self):
+        self.assertEqual((self.ten,3), shuffle_until(10,6,3))
+        #self.assertEqual(12, shuffle_iterative(self.ten, 6, debug=True))
 
     def test_twenty_cut_even(self):
         self.assertEqual(16, shuffle_iterative(self.twenty, 6))
@@ -108,6 +120,9 @@ class TestShuffleIterative(unittest.TestCase):
 
     def test_hundred_cut_odd(self):
         self.assertEqual(34, shuffle_iterative(self.hundred, 11, 0))
+
+    def test_hundred_cut_twentyone(self):
+        self.assertEqual(42, shuffle_iterative(self.hundred, 21))
 
     def test_fivehundred_cut_odd(self):
         self.assertEqual(24, shuffle_iterative(self.fivehundred, 321, 0))
