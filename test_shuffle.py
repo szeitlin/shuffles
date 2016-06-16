@@ -73,6 +73,7 @@ class TestShuffleRecursive(unittest.TestCase):
 class TestShuffleIterative(unittest.TestCase):
 
     def setUp(cls):
+        cls.four = [1,2,3,4]
         cls.smalldeck = [1,2,3,4,5]
         cls.ten = make_deck(10)
         cls.twenty = make_deck(20)
@@ -80,6 +81,12 @@ class TestShuffleIterative(unittest.TestCase):
         cls.hundred = make_deck(100)
         cls.fivehundred = make_deck(500)
         cls.big = make_deck(1002)
+
+    def test_four_cut_odd(self):
+        self.assertEqual(2, shuffle_iterative(self.four, 3))
+
+    def test_four_cut_even(self):
+        self.assertEqual(4, shuffle_iterative(self.four, 2))
 
     def test_smalldeck_cut_odd(self):
         self.assertEqual(4, shuffle_iterative(self.smalldeck, 3))
@@ -90,9 +97,11 @@ class TestShuffleIterative(unittest.TestCase):
     def test_twenty_cut_even(self):
         self.assertEqual(16, shuffle_iterative(self.twenty, 6))
 
-    @unittest.skip("special case")
     def test_twenty_cut_odd(self):
-        self.assertEqual(6, shuffle_iterative(self.twenty, 11))
+        self.assertEqual(8, shuffle_iterative(self.twenty, 11))
+
+    def test_twenty_cut_five(self):
+        self.assertEqual(16, shuffle_iterative(self.twenty, 5))
 
     def test_fifty_cut_odd(self):
         self.assertEqual(40, shuffle_iterative(self.fifty, 15))
@@ -100,9 +109,8 @@ class TestShuffleIterative(unittest.TestCase):
     def test_hundred_cut_odd(self):
         self.assertEqual(34, shuffle_iterative(self.hundred, 11, 0))
 
-    @unittest.skip("special case")
     def test_fivehundred_cut_odd(self):
-        self.assertEqual(358, shuffle_iterative(self.fivehundred, 321, 0))
+        self.assertEqual(24, shuffle_iterative(self.fivehundred, 321, 0))
 
     def test_fivehundred_one(self):
         self.assertEqual(1890, shuffle_iterative(self.fivehundred,101, 0))
@@ -119,6 +127,13 @@ class TestShuffleIterative(unittest.TestCase):
     @unittest.skip("special case")
     def test_fivehundred_five(self):
         self.assertEqual(626, shuffle_iterative(self.fivehundred, 105, 0))
+
+    @unittest.skip("special case")
+    def test_fivehundred_six(self):
+        self.assertEqual(626, shuffle_iterative(self.fivehundred, 106))
+
+    def test_fivehundred_seven(self):
+        self.assertEqual(33728, shuffle_iterative(self.fivehundred, 107))
 
     def test_big(self):
         self.assertEqual(1890, shuffle_iterative(self.big, 101, 0))

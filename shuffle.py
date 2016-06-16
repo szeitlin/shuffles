@@ -22,6 +22,8 @@ def make_deck(n):
 
 def shuffle(cards, c):
     """
+    Naive approach: works for most(all?) cases, but it's very slow.
+
     Cut the cards at given position.
     Put the bottom card from the top portion followed by
     the bottom card from the bottom portion.
@@ -48,12 +50,8 @@ def shuffle(cards, c):
         return newstack
 
     elif len(top) > 0:
-        #top.extend(newstack)
-        #return top
         newstack.extendleft(top)
     elif len(bottom) > 0:
-        #bottom.extend(newstack)
-        #return bottom
         newstack.extendleft(bottom)
 
     #print(newstack)
@@ -85,7 +83,7 @@ def zip_shuffle(cards, c):
     cut_isEven = oddeven(c)
 
     #ok, tricky part is dealing with the leftover cards - different if they're in the top or bottom
-    #different if list length is odd or even (and cut might matter too?)
+    #different if list length is odd or even and if cut is odd or even
 
     if deck_isEven is True:
         #try this if list length is even
@@ -93,18 +91,24 @@ def zip_shuffle(cards, c):
         if cut_isEven:
             iters = [reversed(top), reversed(bottom)]
             newbottom = list(next(it) for it in cycle(iters))
-            newtop = list(reversed(cards[c:c+leftover]))
+            if top_length >= bottom_length:
+                newtop = list(reversed(top[0:leftover]))
+            elif bottom_length > top_length:
+                newtop = list(reversed(cards[c:c+leftover]))
 
         if cut_isEven is False:
             iters = [reversed(bottom), reversed(top)]
             newbottom = list(next(it) for it in cycle(iters))
-            newtop = list(reversed(cards[c+1:c+leftover-1])) + [cards[c]]
+            if top_length > bottom_length:
+                newtop = list(reversed(top[0:leftover]))
+            elif bottom_length > top_length:
+                newtop = list(reversed(cards[c+1:c+leftover-1])) + [cards[c]]
 
     elif deck_isEven is False:
         #for if list length is odd
         #use zip b/c truncation is actually what we want, so leftovers can go on top
         newbottom = list(sum(zip(reversed(top), reversed(bottom)), ()))
-        print(newbottom)
+        #print(newbottom)
 
         if cut_isEven:
             newtop = cards[c:c+leftover]
@@ -176,7 +180,7 @@ def shuffle_recursive(cards, c, shuffle_count):
 
 def shuffle_iterative(cards, c, shuffle_count=0):
     """
-    91% of time spent in shuffle method
+    91% of time spent in original shuffle method
     2% of time spent on lists_identical method
 
     :param cards: deque of list of int
