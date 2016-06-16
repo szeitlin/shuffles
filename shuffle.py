@@ -78,18 +78,31 @@ def zip_shuffle(cards, c):
 
     leftover = abs(top_length - bottom_length)
 
-    remaining = bigger - leftover
+    #remaining = bigger - leftover
 
-    #oddeven = lambda x: x % 2
-
-    #newtop = cards[c+1:c+(remaining)]
+    oddeven = lambda x: True if x % 2 == 0 else False
+    isEven = oddeven(len(cards))
 
     #ok, tricky part is dealing with the leftover cards - different if they're in the top or bottom
+    #different if list length is odd or even (and cut might matter too?)
 
-    iters = [reversed(top), reversed(bottom)]
-    newbottom = list(next(it) for it in cycle(iters))
+    if isEven is True:
+        #try this if list length is even
+        iters = [reversed(bottom), reversed(top)]
+        newbottom = list(next(it) for it in cycle(iters))
+        mod_c = len(cards) % 4
+        newtop = list(reversed(cards[leftover:leftover+mod_c])) + [cards[c]]
 
-    newstack = newtop + [cards[c]]+ newbottom
+    elif isEven is False:
+        #for if list length is odd
+        #use zip b/c truncation is actually what we want, so leftovers can go on top
+        newbottom = list(sum(zip(reversed(top), reversed(bottom)), ()))
+        print(newbottom)
+
+        newtop = cards[0:leftover]
+        print(newtop)
+
+    newstack = newtop + newbottom
 
     return newstack
 
@@ -159,10 +172,10 @@ def shuffle_iterative(cards, c, shuffle_count=0):
     :return: shuffle_count
     """
 
-    original_order = deque([x for x in range(1, len(cards)+1)])
-    print(original_order)
+    original_order = [x for x in range(1, len(cards)+1)]
+    #print(original_order)
 
-    for i in range(5):
+    for i in range(100000):
         newstack = zip_shuffle(cards, c)
         shuffle_count +=1
         print(newstack)
