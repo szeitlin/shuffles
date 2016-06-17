@@ -54,7 +54,6 @@ def shuffle(cards, c):
     elif len(bottom) > 0:
         newstack.extendleft(bottom)
 
-    #print(newstack)
     return newstack
 
 def zip_shuffle(cards, c):
@@ -72,11 +71,7 @@ def zip_shuffle(cards, c):
     top_length = len(top)
     bottom_length = len(bottom)
 
-    bigger = max(top_length, bottom_length)
-
     leftover = abs(top_length - bottom_length)
-
-    #remaining = bigger - leftover
 
     oddeven = lambda x: True if x % 2 == 0 else False
     deck_isEven = oddeven(len(cards))
@@ -87,12 +82,9 @@ def zip_shuffle(cards, c):
     #different if list length is odd or even and if cut is odd or even
 
     if deck_isEven is True:
-        #try this if list length is even
 
         if cut_isEven:
             newbottom = list(sum(zip(reversed(top), reversed(bottom)), ()))
-            # iters = [reversed(top), reversed(bottom)]
-            # newbottom = list(next(it) for it in cycle(iters))
             if top_length >= bottom_length:
                 newtop = list(top[0:leftover])
             elif bottom_length > top_length:
@@ -108,9 +100,7 @@ def zip_shuffle(cards, c):
 
     elif deck_isEven is False:
         #for if list length is odd
-        #use zip b/c truncation is actually what we want, so leftovers can go on top
         newbottom = list(sum(zip(reversed(top), reversed(bottom)), ()))
-        #print(newbottom)
 
         if cut_isEven:
             if top_length > bottom_length:
@@ -122,13 +112,10 @@ def zip_shuffle(cards, c):
                 newtop = list(reversed(top[0:leftover]))
             elif bottom_length > top_length:
                 newtop = list(reversed(cards[c:c+leftover]))
-        #print(newtop)
 
     newstack = newtop + newbottom
 
     return newstack
-
-
 
 def shuffle_until(n, c, times=0):
     """
@@ -172,10 +159,8 @@ def shuffle_recursive(cards, c, shuffle_count):
     4
     """
     newstack = shuffle(cards,c)
-    #print(cards, newstack) #for debugging
 
     shuffle_count +=1
-    #print(shuffle_count)
 
     if list(newstack) == [x for x in range(1, len(cards)+1)]: #stopping criteria
         return shuffle_count
@@ -195,7 +180,6 @@ def shuffle_iterative(cards, c, shuffle_count=0, debug=False):
     """
 
     original_order = [x for x in range(1, len(cards)+1)]
-    #print(original_order)
 
     for i in range(100000):
         newstack = zip_shuffle(cards, c)
